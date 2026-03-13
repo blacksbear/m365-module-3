@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Mistake — Module 3 Unit 4</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #f0ede6; }
+
+  .header { background: #0F2D52; padding: 18px 24px 14px; }
+  .htag { display: inline-block; background: rgba(255,255,255,0.15); color: #B5D4F4; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .header h1 { font-size: 20px; font-weight: 600; color: white; margin-bottom: 3px; }
+  .header p { font-size: 12px; color: #85B7EB; }
+
+  .scorebar { background: #0a1f3d; padding: 9px 24px; display: flex; align-items: center; gap: 10px; }
+  .sdot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all 0.4s; }
+  .sdot.found { background: #1D9E75; border-color: #1D9E75; color: white; }
+  .slabel { font-size: 11px; color: #85B7EB; margin-left: auto; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: white; border: 2px solid #D3D1C7; border-radius: 12px; overflow: hidden; transition: border-color 0.3s; }
+  .card.solved { border-color: #1D9E75; }
+
+  .clabel { padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+  .cletter { width: 20px; height: 20px; border-radius: 50%; font-size: 10px; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .checkmark { margin-left: auto; font-size: 15px; opacity: 0; transition: opacity 0.3s; color: #1D9E75; }
+  .card.solved .checkmark { opacity: 1; }
+
+  .clabel-a { background: #FAECE7; color: #712B13; } .cletter-a { background: #D85A30; }
+  .clabel-b { background: #FAEEDA; color: #633806; } .cletter-b { background: #BA7517; }
+  .clabel-c { background: #E6F1FB; color: #0C447C; } .cletter-c { background: #185FA5; }
+  .clabel-d { background: #FBEAF0; color: #72243E; } .cletter-d { background: #993556; }
+
+  .cbody { padding: 10px 12px 12px; }
+  .hint { font-size: 10px; color: #888; margin-bottom: 8px; font-style: italic; }
+
+  .ow { border: 1px solid #ccc; border-radius: 5px; overflow: hidden; }
+  .otbar { background: #185FA5; padding: 4px 8px; display: flex; align-items: center; }
+  .otbar-title { font-size: 9px; color: white; font-weight: 500; }
+  .odots { display: flex; gap: 3px; margin-left: auto; }
+  .odot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .oribbon { background: #f3f2f1; border-bottom: 1px solid #ddd; padding: 4px 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+  .rbtn { padding: 3px 7px; border-radius: 3px; font-size: 9px; font-weight: 500; background: white; border: 1px solid #ccc; color: #333; white-space: nowrap; }
+
+  .oheader { padding: 6px 8px; background: white; border-bottom: 1px solid #eee; }
+  .ofield { display: flex; gap: 6px; font-size: 9px; padding: 1px 0; }
+  .oflabel { color: #888; width: 28px; flex-shrink: 0; }
+  .ofvalue { color: #222; }
+  .osubject { font-size: 10px; font-weight: 600; color: #222; margin: 5px 0 2px; }
+  .obody { padding: 6px 8px; background: white; font-size: 9px; color: #444; line-height: 1.5; }
+
+  .oinbox-header { background: #f3f2f1; padding: 3px 7px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+  .oinbox-title { font-size: 9px; font-weight: 600; color: #333; }
+  .ubadge { background: #E24B4A; color: white; font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
+  .erow { padding: 4px 7px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 5px; }
+  .erow:last-child { border-bottom: none; }
+  .edot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .edot.unread { background: #185FA5; }
+  .esender { font-size: 9px; font-weight: 600; color: #222; width: 60px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .epreview { font-size: 8px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .no-folders { padding: 5px 7px; font-size: 8px; color: #BA7517; background: #FAEEDA; border-top: 1px solid #FAC775; }
+
+  .calrow { padding: 5px 8px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .calrow:last-child { border-bottom: none; }
+  .caltitle { font-size: 9px; font-weight: 600; color: #222; }
+  .caldate { font-size: 8px; color: #888; }
+  .cal-status { font-size: 8px; font-weight: 600; padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+  .cal-status.pending { background: #FAECE7; color: #D85A30; }
+
+  .attach-row { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-top: 1px solid #F5C4B3; background: #FAECE7; font-size: 9px; }
+  .attach-icon { width: 14px; height: 14px; background: #D85A30; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 8px; color: white; flex-shrink: 0; font-weight: 700; }
+
+  /* HOTSPOTS */
+  .mistake-target { cursor: pointer; position: relative; transition: opacity 0.2s; }
+  .mistake-target:hover { opacity: 0.8; }
+  .rbtn.mistake-target { animation: pulse-btn 1.8s infinite; }
+  .ubadge.mistake-target { animation: pulse-btn 1.8s infinite; cursor: pointer; }
+  .cal-status.mistake-target { animation: pulse-btn 1.8s infinite; cursor: pointer; }
+  .body-link { color: #D85A30; font-weight: 600; text-decoration: underline; text-decoration-style: dotted; cursor: pointer; animation: pulse-btn 1.8s infinite; }
+
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(216, 90, 48, 0.55); }
+    50%       { box-shadow: 0 0 0 5px rgba(216, 90, 48, 0); }
+  }
+
+  .rbtn.danger-btn { background: #FAECE7; border-color: #D85A30; color: #712B13; }
+
+  /* REVEAL */
+  .reveal { display: none; margin-top: 10px; border-radius: 8px; overflow: hidden; }
+  .reveal.open { display: block; }
+  .reveal-mistake { background: #FAECE7; border: 1px solid #F5C4B3; padding: 9px 11px; }
+  .reveal-mistake strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #D85A30; display: block; margin-bottom: 4px; }
+  .reveal-mistake p { font-size: 12px; color: #712B13; line-height: 1.55; }
+  .reveal-fix { background: #E1F5EE; border: 1px solid #9FE1CB; border-top: none; padding: 9px 11px; }
+  .reveal-fix strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #0F6E56; display: block; margin-bottom: 4px; }
+  .reveal-fix p { font-size: 12px; color: #085041; line-height: 1.55; }
+
+  /* COMPLETION */
+  .completion { display: none; margin: 0 16px 20px; background: #E1F5EE; border: 2px solid #1D9E75; border-radius: 12px; padding: 20px; text-align: center; }
+  .completion.show { display: block; }
+  .comp-num { font-size: 42px; font-weight: 700; color: #0F6E56; line-height: 1; }
+  .comp-label { font-size: 15px; color: #0F6E56; font-weight: 600; margin-top: 6px; }
+  .comp-sub { font-size: 12px; color: #1D9E75; margin-top: 6px; }
+
+  .danger-ofvalue { color: #D85A30; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="htag">Unit 4 · Interactive Activity</div>
+  <h1>Spot the Mistake</h1>
+  <p>Each scenario contains one real email mistake. Click the highlighted element to find out what went wrong — and how to fix it.</p>
+</div>
+
+<div class="scorebar">
+  <div class="sdot" id="dot-a"></div>
+  <div class="sdot" id="dot-b"></div>
+  <div class="sdot" id="dot-c"></div>
+  <div class="sdot" id="dot-d"></div>
+  <div class="slabel" id="score-label">0 / 4 found</div>
+</div>
+
+<div class="grid">
+
+  <!-- A -->
+  <div class="card" id="card-a">
+    <div class="clabel clabel-a">
+      <div class="cletter cletter-a">A</div>
+      <span>The Reply All trap</span>
+      <span class="checkmark">✓</span>
+    </div>
+    <div class="cbody">
+      <p class="hint">Something is wrong with how this email is being sent.</p>
+      <div class="ow">
+        <div class="otbar">
+          <span class="otbar-title">Outlook — New Message</span>
+          <div class="odots">
+            <div class="odot" style="background:#E24B4A"></div>
+            <div class="odot" style="background:#EF9F27"></div>
+            <div class="odot" style="background:#639922"></div>
+          </div>
+        </div>
+        <div class="oribbon">
+          <div class="rbtn">Reply</div>
+          <div class="rbtn danger-btn mistake-target" id="trigger-a" onclick="reveal('a')">Reply All ←</div>
+          <div class="rbtn">Forward</div>
+          <div class="rbtn">Delete</div>
+        </div>
+        <div class="oheader">
+          <div class="ofield"><span class="oflabel">To:</span><span class="ofvalue danger-ofvalue">HR Team + All Staff (47 people)</span></div>
+          <div class="ofield"><span class="oflabel">From:</span><span class="ofvalue">Jordan M.</span></div>
+          <div class="osubject">RE: Confidential — Accommodation Request</div>
+        </div>
+        <div class="obody">"Thanks for letting us know. I think we should also consider..."</div>
+      </div>
+      <div class="reveal" id="reveal-a">
+        <div class="reveal-mistake">
+          <strong>The mistake</strong>
+          <p>Reply All sends a confidential HR message to all 47 staff members. The original email was only meant for HR and the employee's manager — this is a serious privacy breach.</p>
+        </div>
+        <div class="reveal-fix">
+          <strong>The fix</strong>
+          <p>Always use Reply — not Reply All — unless every single recipient genuinely needs your response. Before sending, double-check the To field. When in doubt about a sensitive email, reply only to the sender.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="card" id="card-b">
+    <div class="clabel clabel-b">
+      <div class="cletter cletter-b">B</div>
+      <span>The inbox avalanche</span>
+      <span class="checkmark">✓</span>
+    </div>
+    <div class="cbody">
+      <p class="hint">Something is wrong with how this inbox is organised.</p>
+      <div class="ow">
+        <div class="otbar">
+          <span class="otbar-title">Outlook — Mail</span>
+          <div class="odots">
+            <div class="odot" style="background:#E24B4A"></div>
+            <div class="odot" style="background:#EF9F27"></div>
+            <div class="odot" style="background:#639922"></div>
+          </div>
+        </div>
+        <div class="oinbox-header">
+          <span class="oinbox-title">Inbox</span>
+          <span class="ubadge mistake-target" id="trigger-b" onclick="reveal('b')">547 unread ←</span>
+        </div>
+        <div class="erow"><div class="edot unread"></div><div class="esender">Client A</div><div class="epreview">RE: Proposal — urgent feedback needed</div></div>
+        <div class="erow"><div class="edot unread"></div><div class="esender">Newsletter</div><div class="epreview">Top 10 Finance Tips This Week</div></div>
+        <div class="erow"><div class="edot unread"></div><div class="esender">IT Support</div><div class="epreview">Password expires tomorrow</div></div>
+        <div class="erow"><div class="edot unread"></div><div class="esender">Manager</div><div class="epreview">URGENT: Board deck needs changes</div></div>
+        <div class="erow"><div class="edot unread"></div><div class="esender">HR Team</div><div class="epreview">Submit timesheets by Friday</div></div>
+        <div class="no-folders">⚠ No folders created — all 547 emails in Inbox</div>
+      </div>
+      <div class="reveal" id="reveal-b">
+        <div class="reveal-mistake">
+          <strong>The mistake</strong>
+          <p>No folder structure after months on the job. Urgent client and manager emails are buried under newsletters and automated notifications — critical messages can be missed entirely.</p>
+        </div>
+        <div class="reveal-fix">
+          <strong>The fix</strong>
+          <p>Set up folders in your first week: Clients, HR, Projects, Meetings. Use Inbox Rules to automatically route recurring senders (e.g. newsletters) so your inbox only holds what actually needs your attention.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="card" id="card-c">
+    <div class="clabel clabel-c">
+      <div class="cletter cletter-c">C</div>
+      <span>Ignored invitations</span>
+      <span class="checkmark">✓</span>
+    </div>
+    <div class="cbody">
+      <p class="hint">Something is wrong with these meeting invitations.</p>
+      <div class="ow">
+        <div class="otbar">
+          <span class="otbar-title">Outlook — Calendar</span>
+          <div class="odots">
+            <div class="odot" style="background:#E24B4A"></div>
+            <div class="odot" style="background:#EF9F27"></div>
+            <div class="odot" style="background:#639922"></div>
+          </div>
+        </div>
+        <div class="oinbox-header"><span class="oinbox-title">Pending invitations</span></div>
+        <div class="calrow">
+          <div>
+            <div class="caltitle">Q2 Planning Session</div>
+            <div class="caldate">Mon Mar 9 · 2:00 PM · Sarah Chen</div>
+          </div>
+          <div class="cal-status pending mistake-target" id="trigger-c" onclick="reveal('c')">No response ←</div>
+        </div>
+        <div class="calrow">
+          <div>
+            <div class="caltitle">Client Call — Apex Financial</div>
+            <div class="caldate">Tue Mar 10 · 11:00 AM · Michael T.</div>
+          </div>
+          <div class="cal-status pending">No response</div>
+        </div>
+        <div class="calrow">
+          <div>
+            <div class="caltitle">Weekly Team Standup</div>
+            <div class="caldate">Wed Mar 11 · 9:00 AM · Team Lead</div>
+          </div>
+          <div class="cal-status pending">No response</div>
+        </div>
+      </div>
+      <div class="reveal" id="reveal-c">
+        <div class="reveal-mistake">
+          <strong>The mistake</strong>
+          <p>Three meeting invitations from last week have received no response. Meeting organizers cannot finalise headcounts, book rooms, or plan agendas without knowing whether you're attending.</p>
+        </div>
+        <div class="reveal-fix">
+          <strong>The fix</strong>
+          <p>Always respond within 24 hours — Accept, Tentative, or Decline. Even declining is helpful. Add a short message when declining so your colleagues can plan around your absence. Use "Propose New Time" if you're available at a different slot.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="card" id="card-d">
+    <div class="clabel clabel-d">
+      <div class="cletter cletter-d">D</div>
+      <span>The missing attachment</span>
+      <span class="checkmark">✓</span>
+    </div>
+    <div class="cbody">
+      <p class="hint">Something is missing from this email before it's sent.</p>
+      <div class="ow">
+        <div class="otbar">
+          <span class="otbar-title">Outlook — New Message</span>
+          <div class="odots">
+            <div class="odot" style="background:#E24B4A"></div>
+            <div class="odot" style="background:#EF9F27"></div>
+            <div class="odot" style="background:#639922"></div>
+          </div>
+        </div>
+        <div class="oribbon">
+          <div class="rbtn">Send</div>
+          <div class="rbtn">Attach file</div>
+          <div class="rbtn">Discard</div>
+        </div>
+        <div class="oheader">
+          <div class="ofield"><span class="oflabel">To:</span><span class="ofvalue">Director of Finance</span></div>
+          <div class="osubject">Q1 Financial Summary — Board Review</div>
+        </div>
+        <div class="obody">"Hi Director, please see the <span class="body-link mistake-target" id="trigger-d" onclick="reveal('d')">attached Q1 summary report ←</span> for your review ahead of Friday's board meeting. Let me know if you have any questions."</div>
+        <div class="attach-row">
+          <div class="attach-icon">!</div>
+          <span style="color:#D85A30;font-weight:600;font-size:9px;">No files attached</span>
+        </div>
+      </div>
+      <div class="reveal" id="reveal-d">
+        <div class="reveal-mistake">
+          <strong>The mistake</strong>
+          <p>The email mentions "attached report" but no file was actually attached. The Director now has to follow up to get the document — wasting valuable time before an important board meeting.</p>
+        </div>
+        <div class="reveal-fix">
+          <strong>The fix</strong>
+          <p>Outlook shows an automatic warning pop-up if you type "attach" or "attached" but haven't added a file — always pay attention to it. Even better: attach the file first, then write the email body, so you can't forget.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="completion" id="completion">
+  <div class="comp-num">4 / 4</div>
+  <div class="comp-label">All mistakes found!</div>
+  <div class="comp-sub">You know how to spot these common Outlook pitfalls. Continue to the Module 3 Final Quiz when you're ready.</div>
+</div>
+
+<script>
+var found = { a: false, b: false, c: false, d: false };
+
+function reveal(id) {
+  var panel = document.getElementById('reveal-' + id);
+  if (panel.classList.contains('open')) return;
+  panel.classList.add('open');
+  if (!found[id]) {
+    found[id] = true;
+    document.getElementById('card-' + id).classList.add('solved');
+    var dot = document.getElementById('dot-' + id);
+    dot.classList.add('found');
+    dot.textContent = '✓';
+    var trigger = document.getElementById('trigger-' + id);
+    if (trigger) trigger.style.animation = 'none';
+    updateScore();
+  }
+}
+
+function updateScore() {
+  var count = Object.values(found).filter(Boolean).length;
+  document.getElementById('score-label').textContent = count + ' / 4 found';
+  if (count === 4) {
+    document.getElementById('completion').classList.add('show');
+  }
+}
+</script>
+</body>
+</html>

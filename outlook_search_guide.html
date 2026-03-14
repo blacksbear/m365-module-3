@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outlook Search Guide — Module 3 Unit 2</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,'Segoe UI',sans-serif;background:#f0ede6}
+  .hero{background:#0F2D52;padding:22px 24px 18px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(24,95,165,0.25)}
+  .hero::after{content:'';position:absolute;bottom:-40px;left:30%;width:140px;height:140px;border-radius:50%;background:rgba(15,110,86,0.18)}
+  .htag{display:inline-block;background:rgba(255,255,255,0.15);color:#B5D4F4;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;position:relative;z-index:1}
+  .hero h1{font-size:20px;font-weight:600;color:white;margin-bottom:3px;position:relative;z-index:1}
+  .hero p{font-size:12px;color:#85B7EB;position:relative;z-index:1}
+  .search-demo{margin:16px 16px 0;background:white;border:1.5px solid #D3D1C7;border-radius:10px;overflow:hidden}
+  .sbar-wrap{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #eee}
+  .sbar-icon{color:#888;font-size:14px;flex-shrink:0}
+  .sbar-input{flex:1;border:none;outline:none;font-size:13px;color:#1a1a18;font-family:inherit;background:transparent}
+  .sbar-input::placeholder{color:#aaa}
+  .sbar-scope{font-size:10px;color:#185FA5;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:12px;padding:2px 8px;cursor:pointer;flex-shrink:0;transition:all .2s}
+  .sbar-scope:hover{background:#B5D4F4}
+  .sbar-kb{font-size:9px;color:#aaa;background:#f3f2f1;border:1px solid #ddd;border-radius:4px;padding:2px 6px;flex-shrink:0}
+  .result-preview{padding:8px 14px 10px;display:flex;flex-direction:column;gap:4px}
+  .rp-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+  .rp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f5f5f5}
+  .rp-row:last-child{border-bottom:none}
+  .rp-sender{font-size:10px;font-weight:600;color:#185FA5;width:80px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rp-subj{font-size:10px;color:#333;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rp-date{font-size:9px;color:#aaa;flex-shrink:0}
+  .rp-match{background:#FAEEDA;color:#633806;font-size:8px;font-weight:600;padding:1px 5px;border-radius:8px;flex-shrink:0}
+  .tabs{display:flex;gap:0;padding:16px 16px 0;border-bottom:1px solid #D3D1C7;overflow-x:auto}
+  .tab{padding:8px 14px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap}
+  .tab.active{color:#185FA5;border-bottom-color:#185FA5}
+  .tab:hover:not(.active){color:#444;border-bottom-color:#ddd}
+  .panel{display:none;padding:14px 16px}
+  .panel.active{display:block}
+  .op-section{margin-bottom:18px}
+  .op-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#5F5E5A;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #D3D1C7}
+  .op-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  @media(max-width:520px){.op-grid{grid-template-columns:1fr}}
+  .op-card{background:white;border:1px solid #D3D1C7;border-radius:8px;padding:10px 12px;transition:border-color .15s}
+  .op-card:hover{border-color:#185FA5}
+  .op-syntax{font-family:monospace;font-size:12px;font-weight:600;color:#185FA5;background:#E6F1FB;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:5px}
+  .op-desc{font-size:11px;color:#5F5E5A;line-height:1.45;margin-bottom:4px}
+  .op-example{font-size:10px;color:#aaa;font-style:italic}
+  .op-example span{color:#185FA5;font-style:normal;font-family:monospace}
+  .compare-table{width:100%;border-collapse:collapse;background:white;border-radius:8px;overflow:hidden;border:1px solid #D3D1C7;font-size:11px}
+  .compare-table th{padding:7px 10px;text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .compare-table th:first-child{background:#FAEEDA;color:#633806;width:38%}
+  .compare-table th:nth-child(2){background:#E6F1FB;color:#0C447C;width:38%}
+  .compare-table th:last-child{background:#F1EFE8;color:#444;width:24%}
+  .compare-table td{padding:6px 10px;border-top:1px solid #f0f0f0;vertical-align:middle}
+  .compare-table tr:hover td{background:#fafafa}
+  .code{font-family:monospace;font-size:11px;background:#f3f2f1;padding:1px 5px;border-radius:3px;color:#1a1a18;white-space:nowrap}
+  .code.gm{background:#FFF3E0;color:#854F0B}
+  .code.ol{background:#E6F1FB;color:#0C447C}
+  .scope-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  @media(max-width:520px){.scope-row{grid-template-columns:1fr}}
+  .scope-card{background:white;border:1px solid #D3D1C7;border-radius:8px;padding:10px 12px}
+  .scope-card.recommended{border-color:#1D9E75;background:#E1F5EE}
+  .scope-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:5px}
+  .scope-badge.sb-all{background:#E6F1FB;color:#0C447C}
+  .scope-badge.sb-folder{background:#F1EFE8;color:#444}
+  .scope-badge.sb-rec{background:#E1F5EE;color:#085041}
+  .scope-title{font-size:12px;font-weight:600;color:#1a1a18;margin-bottom:3px}
+  .scope-desc{font-size:11px;color:#5F5E5A;line-height:1.45}
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .pill{font-family:monospace;font-size:11px;background:#0F2D52;color:#B5D4F4;padding:4px 10px;border-radius:20px;white-space:nowrap}
+  .tip-list{display:flex;flex-direction:column;gap:8px}
+  .tip-item{background:white;border:1px solid #D3D1C7;border-radius:8px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
+  .tip-num{width:24px;height:24px;border-radius:50%;background:#0F2D52;color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .tip-title{font-size:12px;font-weight:600;color:#1a1a18;margin-bottom:3px}
+  .tip-desc{font-size:11px;color:#5F5E5A;line-height:1.5}
+  .tip-code{margin-top:5px;font-family:monospace;font-size:11px;background:#E6F1FB;color:#0C447C;padding:4px 8px;border-radius:5px;display:inline-block}
+  .challenge-wrap{background:white;border:1px solid #D3D1C7;border-radius:10px;overflow:hidden}
+  .ch-header{background:#0F2D52;padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+  .ch-header span{font-size:11px;color:white;font-weight:500}
+  .ch-badge{background:rgba(255,255,255,.15);color:#B5D4F4;font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px}
+  .ch-item{padding:10px 14px;border-bottom:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:10px}
+  .ch-item:last-child{border-bottom:none}
+  .ch-num{width:22px;height:22px;border-radius:50%;background:#E6F1FB;color:#185FA5;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .ch-task{font-size:11px;color:#1a1a18;line-height:1.5;flex:1}
+  .ch-timer{font-size:10px;color:#1D9E75;font-weight:600;background:#E1F5EE;padding:2px 8px;border-radius:10px;flex-shrink:0}
+  .ch-hint{font-size:10px;color:#aaa;margin-top:3px;font-style:italic}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="htag">Module 3 · Unit 2 · Reference guide</div>
+    <h1>Outlook Search — Quick Reference</h1>
+    <p>Find any email in seconds using search operators, filters, and scope settings.</p>
+  </div>
+
+  <div class="search-demo">
+    <div class="sbar-wrap">
+      <span class="sbar-icon">🔍</span>
+      <input class="sbar-input" id="demo-input" placeholder='Try: from:sarah subject:budget hasattachment:yes' />
+      <span class="sbar-scope" id="scope-toggle" onclick="toggleScope()">All Mailboxes</span>
+      <span class="sbar-kb">Ctrl+E</span>
+    </div>
+    <div class="result-preview" id="results">
+      <div class="rp-label">Results will appear here as you type</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('operators',this)">Operators</button>
+    <button class="tab" onclick="switchTab('gmail',this)">Gmail vs Outlook</button>
+    <button class="tab" onclick="switchTab('scope',this)">Scope &amp; filters</button>
+    <button class="tab" onclick="switchTab('tips',this)">Pro tips</button>
+    <button class="tab" onclick="switchTab('practice',this)">Practice challenges</button>
+  </div>
+
+  <div class="panel active" id="panel-operators">
+    <div class="op-section">
+      <div class="op-section-title">Find by person</div>
+      <div class="op-grid">
+        <div class="op-card"><div class="op-syntax">from:</div><div class="op-desc">Find emails sent by a specific person.</div><div class="op-example">e.g. <span>from:sarah</span> or <span>from:sarah@company.com</span></div></div>
+        <div class="op-card"><div class="op-syntax">to:</div><div class="op-desc">Find emails you sent to a specific person.</div><div class="op-example">e.g. <span>to:michael</span></div></div>
+        <div class="op-card"><div class="op-syntax">cc:</div><div class="op-desc">Find emails where someone was CC'd.</div><div class="op-example">e.g. <span>cc:manager@company.com</span></div></div>
+        <div class="op-card"><div class="op-syntax">participants:</div><div class="op-desc">Find emails involving anyone — sender or recipient.</div><div class="op-example">e.g. <span>participants:david</span></div></div>
+      </div>
+    </div>
+    <div class="op-section">
+      <div class="op-section-title">Find by content</div>
+      <div class="op-grid">
+        <div class="op-card"><div class="op-syntax">subject:</div><div class="op-desc">Search only the subject line.</div><div class="op-example">e.g. <span>subject:budget</span> or <span>subject:"Q1 report"</span></div></div>
+        <div class="op-card"><div class="op-syntax">body:</div><div class="op-desc">Search only the email body text.</div><div class="op-example">e.g. <span>body:invoice</span></div></div>
+        <div class="op-card"><div class="op-syntax">"exact phrase"</div><div class="op-desc">Wrap in quotes to search an exact phrase.</div><div class="op-example">e.g. <span>"please see attached"</span></div></div>
+        <div class="op-card"><div class="op-syntax">category:</div><div class="op-desc">Find emails tagged with a colour category.</div><div class="op-example">e.g. <span>category:red</span> or <span>category:urgent</span></div></div>
+      </div>
+    </div>
+    <div class="op-section">
+      <div class="op-section-title">Find by date</div>
+      <div class="op-grid">
+        <div class="op-card"><div class="op-syntax">received:</div><div class="op-desc">Filter by when the email arrived.</div><div class="op-example">e.g. <span>received:today</span> · <span>received:this week</span> · <span>received:last month</span></div></div>
+        <div class="op-card"><div class="op-syntax">received:&lt;date&gt;</div><div class="op-desc">Emails received before a specific date.</div><div class="op-example">e.g. <span>received:&lt;01/01/2026</span></div></div>
+        <div class="op-card"><div class="op-syntax">received:&gt;date</div><div class="op-desc">Emails received after a specific date.</div><div class="op-example">e.g. <span>received:&gt;01/03/2026</span></div></div>
+        <div class="op-card"><div class="op-syntax">sent:</div><div class="op-desc">Filter by when you sent an email.</div><div class="op-example">e.g. <span>sent:yesterday</span></div></div>
+      </div>
+    </div>
+    <div class="op-section">
+      <div class="op-section-title">Find by properties</div>
+      <div class="op-grid">
+        <div class="op-card"><div class="op-syntax">hasattachment:yes</div><div class="op-desc">Emails that include file attachments.</div><div class="op-example">combine: <span>from:client hasattachment:yes</span></div></div>
+        <div class="op-card"><div class="op-syntax">isflagged:yes</div><div class="op-desc">Emails you have flagged for follow-up.</div><div class="op-example">e.g. <span>isflagged:yes received:this week</span></div></div>
+        <div class="op-card"><div class="op-syntax">isread:no</div><div class="op-desc">Only unread emails in results.</div><div class="op-example">e.g. <span>from:hr isread:no</span></div></div>
+        <div class="op-card"><div class="op-syntax">folder:</div><div class="op-desc">Limit search to a specific folder.</div><div class="op-example">e.g. <span>folder:clients subject:invoice</span></div></div>
+      </div>
+    </div>
+    <div class="op-section" style="margin-bottom:4px">
+      <div class="op-section-title">Combine operators — power searching</div>
+      <div class="pill-row">
+        <span class="pill">from:sarah subject:budget hasattachment:yes</span>
+        <span class="pill">from:client received:this week isread:no</span>
+        <span class="pill">subject:"Q1 report" received:&gt;01/01/2026</span>
+        <span class="pill">isflagged:yes from:manager</span>
+        <span class="pill">folder:inbox hasattachment:yes received:last month</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-gmail">
+    <table class="compare-table">
+      <thead><tr><th>Gmail syntax</th><th>Outlook equivalent</th><th>What it finds</th></tr></thead>
+      <tbody>
+        <tr><td><span class="code gm">from:john</span></td><td><span class="code ol">from:john</span></td><td>Emails from John</td></tr>
+        <tr><td><span class="code gm">to:sarah</span></td><td><span class="code ol">to:sarah</span></td><td>Emails sent to Sarah</td></tr>
+        <tr><td><span class="code gm">subject:budget</span></td><td><span class="code ol">subject:budget</span></td><td>Subject line match</td></tr>
+        <tr><td><span class="code gm">has:attachment</span></td><td><span class="code ol">hasattachment:yes</span></td><td>Emails with files attached</td></tr>
+        <tr><td><span class="code gm">is:starred</span></td><td><span class="code ol">isflagged:yes</span></td><td>Starred / flagged emails</td></tr>
+        <tr><td><span class="code gm">is:unread</span></td><td><span class="code ol">isread:no</span></td><td>Unread emails only</td></tr>
+        <tr><td><span class="code gm">before:2026/01/01</span></td><td><span class="code ol">received:&lt;01/01/2026</span></td><td>Emails before a date</td></tr>
+        <tr><td><span class="code gm">after:2026/01/01</span></td><td><span class="code ol">received:&gt;01/01/2026</span></td><td>Emails after a date</td></tr>
+        <tr><td><span class="code gm">label:work</span></td><td><span class="code ol">folder:work</span></td><td>Emails in a folder</td></tr>
+        <tr><td><span class="code gm">in:sent</span></td><td><span class="code ol">folder:sent</span></td><td>Your sent emails</td></tr>
+        <tr><td><span class="code gm">in:trash</span></td><td><span class="code ol">folder:"Deleted Items"</span></td><td>Deleted emails</td></tr>
+        <tr><td><span class="code gm">"exact phrase"</span></td><td><span class="code ol">"exact phrase"</span></td><td>Exact phrase match</td></tr>
+        <tr><td><span class="code gm">larger:5M</span></td><td><span class="code ol">messagesize:&gt;5000</span></td><td>Large emails (KB)</td></tr>
+        <tr><td><span class="code gm">filename:pdf</span></td><td><span class="code ol">attachment:*.pdf</span></td><td>Specific file types</td></tr>
+      </tbody>
+    </table>
+    <div style="background:#E6F1FB;border:1px solid #B5D4F4;border-radius:8px;padding:10px 12px;margin-top:12px;font-size:11px;color:#0C447C;line-height:1.5">
+      <strong style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Good news</strong>
+      The core search syntax — from:, to:, subject:, folder: — is identical between Gmail and Outlook. You already know more than you think.
+    </div>
+  </div>
+
+  <div class="panel" id="panel-scope">
+    <div class="scope-row">
+      <div class="scope-card recommended">
+        <div class="scope-badge sb-rec">Best for most searches</div>
+        <div class="scope-title">All Mailboxes</div>
+        <div class="scope-desc">Searches your entire account — Inbox, all folders, Sent, Archive, and Deleted Items. Use this when you're not sure where the email is.</div>
+      </div>
+      <div class="scope-card">
+        <div class="scope-badge sb-folder">Precise results</div>
+        <div class="scope-title">Current Folder</div>
+        <div class="scope-desc">Only searches the folder you currently have open. Useful when you know exactly where an email should be and want faster, focused results.</div>
+      </div>
+    </div>
+    <div class="op-section-title" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#5F5E5A;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #D3D1C7">Advanced filter bar</div>
+    <div class="op-grid" style="margin-bottom:14px">
+      <div class="op-card"><div class="op-syntax" style="font-family:sans-serif;font-size:11px">Date range</div><div class="op-desc">Use the date picker in the filter bar to set a custom "from" and "to" date — no syntax needed.</div></div>
+      <div class="op-card"><div class="op-syntax" style="font-family:sans-serif;font-size:11px">Has attachment</div><div class="op-desc">Tick the "Has attachments" checkbox — quicker than typing hasattachment:yes.</div></div>
+      <div class="op-card"><div class="op-syntax" style="font-family:sans-serif;font-size:11px">Sort results</div><div class="op-desc">Sort by Date, From, Subject, or Size to scan large result sets quickly.</div></div>
+      <div class="op-card"><div class="op-syntax" style="font-family:sans-serif;font-size:11px">Focused Inbox</div><div class="op-desc">Search only covers Focused by default. Switch to All to also include Other items.</div></div>
+    </div>
+    <div class="op-section-title" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#5F5E5A;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #D3D1C7">Keyboard shortcuts</div>
+    <div class="op-grid">
+      <div class="op-card"><div class="op-syntax">Ctrl + E</div><div class="op-desc">Jump to the search box from anywhere in Outlook.</div></div>
+      <div class="op-card"><div class="op-syntax">Esc</div><div class="op-desc">Exit search and return to your inbox view.</div></div>
+      <div class="op-card"><div class="op-syntax">Ctrl + Shift + F</div><div class="op-desc">Open Advanced Find for complex multi-field searches.</div></div>
+      <div class="op-card"><div class="op-syntax">↑ / ↓ arrows</div><div class="op-desc">Navigate through search results without the mouse.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-tips">
+    <div class="tip-list">
+      <div class="tip-item"><div class="tip-num">1</div><div><div class="tip-title">Start broad, then narrow down</div><div class="tip-desc">Begin with one keyword. If you get too many results, add an operator. Layering one at a time is faster than a complex query from scratch.</div><div class="tip-code">budget → from:sarah budget → from:sarah subject:budget</div></div></div>
+      <div class="tip-item"><div class="tip-num">2</div><div><div class="tip-title">Use quotes for exact phrases</div><div class="tip-desc">Without quotes Outlook finds emails containing any of the words. Quotes force an exact phrase match — essential for locating specific text.</div><div class="tip-code">please see attached → "please see attached"</div></div></div>
+      <div class="tip-item"><div class="tip-num">3</div><div><div class="tip-title">Partial names work in from: and to:</div><div class="tip-desc">You don't need the full email address. First names, last names, or even partial names work — Outlook matches your contact directory and email history.</div><div class="tip-code">from:sarah · from:chen · from:sarah.c</div></div></div>
+      <div class="tip-item"><div class="tip-num">4</div><div><div class="tip-title">Search Deleted Items to recover lost emails</div><div class="tip-desc">Accidentally deleted emails stay in Deleted Items for 30 days. Use folder:"Deleted Items" to search there specifically.</div><div class="tip-code">folder:"Deleted Items" from:client subject:invoice</div></div></div>
+      <div class="tip-item"><div class="tip-num">5</div><div><div class="tip-title">Find large emails to free up mailbox space</div><div class="tip-desc">If your mailbox is getting full, search for large emails and sort results by size to find the biggest offenders quickly.</div><div class="tip-code">messagesize:&gt;5000 hasattachment:yes</div></div></div>
+      <div class="tip-item"><div class="tip-num">6</div><div><div class="tip-title">Natural language works too</div><div class="tip-desc">Outlook understands plain English like "emails from last week" or "unread emails from Sarah" — you don't always need formal operators.</div><div class="tip-code">emails from sarah this week with attachments</div></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-practice">
+    <div style="font-size:11px;color:#5F5E5A;margin-bottom:12px;line-height:1.5">Open your Outlook account and complete each challenge in your own inbox. Each should take under 60 seconds once you know the right operator.</div>
+    <div class="challenge-wrap">
+      <div class="ch-header"><span>Search challenges</span><div class="ch-badge">Goal: under 60 seconds each</div></div>
+      <div class="ch-item"><div class="ch-num">1</div><div class="ch-task">Find all emails from your manager received in the last 7 days.<div class="ch-hint">Hint: combine from: with received:</div></div><div class="ch-timer">60 sec</div></div>
+      <div class="ch-item"><div class="ch-num">2</div><div class="ch-task">Find all emails with file attachments received this month.<div class="ch-hint">Hint: use hasattachment:yes and received:</div></div><div class="ch-timer">60 sec</div></div>
+      <div class="ch-item"><div class="ch-num">3</div><div class="ch-task">Find a specific email using a keyword you remember from the subject line.<div class="ch-hint">Hint: subject:"keyword here"</div></div><div class="ch-timer">45 sec</div></div>
+      <div class="ch-item"><div class="ch-num">4</div><div class="ch-task">Find all emails you've flagged for follow-up that are still unread.<div class="ch-hint">Hint: combine isflagged:yes with isread:no</div></div><div class="ch-timer">45 sec</div></div>
+      <div class="ch-item"><div class="ch-num">5</div><div class="ch-task">Find an email from a colleague using only their last name.<div class="ch-hint">Hint: from:lastname — partial names work!</div></div><div class="ch-timer">30 sec</div></div>
+    </div>
+  </div>
+
+<script>
+function switchTab(id,el){document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});el.classList.add('active');document.getElementById('panel-'+id).classList.add('active')}
+var scopeState='All Mailboxes';
+function toggleScope(){scopeState=scopeState==='All Mailboxes'?'Current Folder':'All Mailboxes';document.getElementById('scope-toggle').textContent=scopeState}
+var demoData=[{sender:'Sarah Chen',subj:'Q1 Budget Review — final draft',date:'Mar 10',tags:['from:sarah','subject:budget','hasattachment:yes']},{sender:'Michael Torres',subj:'Budget approval needed by Friday',date:'Mar 9',tags:['subject:budget']},{sender:'Sarah Chen',subj:'RE: March planning session',date:'Mar 7',tags:['from:sarah']},{sender:'HR Team',subj:'Policy update — see attached PDF',date:'Mar 5',tags:['hasattachment:yes']},{sender:'Apex Financial',subj:'Invoice attached — Q1 services',date:'Mar 3',tags:['hasattachment:yes','from:apex']}];
+document.getElementById('demo-input').addEventListener('input',function(){var q=this.value.toLowerCase().trim();var res=document.getElementById('results');if(!q){res.innerHTML='<div class="rp-label">Results will appear here as you type</div>';return}var matched=demoData.filter(function(d){if(q.includes('from:sarah')&&!d.sender.toLowerCase().includes('sarah'))return false;if(q.includes('hasattachment:yes')&&!d.tags.includes('hasattachment:yes'))return false;if(q.includes('subject:budget')&&!d.subj.toLowerCase().includes('budget'))return false;var kw=q.replace(/\w+:\S+/g,'').trim();if(kw&&!d.subj.toLowerCase().includes(kw)&&!d.sender.toLowerCase().includes(kw))return false;return true});if(matched.length===0){res.innerHTML='<div class="rp-label" style="color:#E24B4A">No results — try adjusting your search</div>';return}res.innerHTML='<div class="rp-label">'+matched.length+' result'+(matched.length!==1?'s':'')+'</div>'+matched.map(function(d){return'<div class="rp-row"><span class="rp-sender">'+d.sender+'</span><span class="rp-subj">'+d.subj+'</span><span class="rp-date">'+d.date+'</span>'+(d.tags.includes('hasattachment:yes')?'<span class="rp-match">attachment</span>':'')+'</div>'}).join('')});
+</script>
+</body>
+</html>
